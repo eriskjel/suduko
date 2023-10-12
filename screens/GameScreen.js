@@ -223,17 +223,26 @@ const GameScreen = ({ route, navigation }) => {
 
 
     const handleSolve = async () => {
-        console.log("Current Board ID:", currentBoardID)
-        console.log("Current Board:", board)
-        console.log("Current Board Solution:", getBoardByID(data, currentBoardID).solution)
+        console.log("Current Board ID:", currentBoardID);
+        console.log("Current Board:", board);
+
         // Fetch the board with the stored ID from AsyncStorage
         const storedData = await fetchData();
         console.log("Stored Boards:", storedData);
 
-        const correspondingBoard = getBoardByID(storedData, currentBoardID); // OR currentBoardIDRef.current for useRef
+        const correspondingBoard = getBoardByID(storedData, currentBoardID);
 
         if (!correspondingBoard) {
             console.error("Could not find the corresponding board.");
+            // Handle this case gracefully, e.g., display an error message to the user.
+            return;
+        }
+
+        console.log("Corresponding Board solution:", correspondingBoard.solution);
+
+        if (!correspondingBoard.solution) {
+            console.error("Solution not found for the corresponding board.");
+            // Handle this case gracefully, e.g., display an error message to the user.
             return;
         }
 
@@ -245,6 +254,7 @@ const GameScreen = ({ route, navigation }) => {
             alert('Not quite right. Try again.');
         }
     };
+
 
 
     const compareBoards = (board1, board2) => {
