@@ -21,13 +21,13 @@ const MainHomeScreen = ({ navigation }) => {
         <View style={styles.home}>
             <TouchableOpacity
                 style={[styles.buttonContainer, { backgroundColor: "#28a745"}]}
-                onPress={() => navigation.navigate('GameScreen', { fromAPI: true })}
+                onPress={() => navigation.navigate('DifficultyScreen')}
             >
-                <Text style={styles.buttonText}>{t('playPrebuiltBoard')}</Text>
+                <Text style={styles.buttonText}>{t('selectDifficulty')}</Text>
             </TouchableOpacity>
 
 
-            <TouchableOpacity style={[styles.buttonContainer, { backgroundColor: "#ffcb00"}]} onPress={() => navigation.navigate('DifficultyScreen')}>
+            <TouchableOpacity style={[styles.buttonContainer, { backgroundColor: "#ffcb00"}]} onPress={() => navigation.navigate('GameScreen', { fromAPI: true })}>
                 <Text style={styles.buttonText}>{t('generateBoard')}</Text>
             </TouchableOpacity>
 

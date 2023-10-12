@@ -1,6 +1,6 @@
 export default {
     welcome: "Welcome to Sudoku!",
-    selectDifficulty: "Select difficulty:",
+    selectDifficulty: "Select difficulty",
     startEasy: "Start easy Game",
     startMedium: "Start medium Game",
     startHard: "Start hard Game",

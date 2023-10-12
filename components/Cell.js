@@ -5,15 +5,18 @@ const Cell = ({ value, rowIndex, colIndex, onCellClick, readOnly, selectedNumber
     const isSelected = rowIndex === selectedCell.row && colIndex === selectedCell.col;
     const cellStyle = [
         styles.cell,
-        readOnly ? { backgroundColor: '#b6b6b6' } : {},
+        { backgroundColor: readOnly ? '#b6b6b6' : 'white' }, // Set background color based on readOnly
         isSelected ? { borderWidth: 3, borderColor: '#5294e7' } : {}
     ];
+
 
     const handlePress = () => {
         if (!readOnly) {
             onCellClick(rowIndex, colIndex, selectedNumber);
         }
     };
+
+
 
     return (
         <TouchableOpacity style={cellStyle} onPress={handlePress}>

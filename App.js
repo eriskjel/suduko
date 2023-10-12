@@ -7,24 +7,36 @@ import HomeScreen from "./screens/HomeScreen";
 import {fetchData, storeData} from "./utilities/storage";
 import React, { useEffect } from 'react';
 import data from "./assets/data.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import {hashArray} from "./utilities/hash";
+import {printAsyncStorage} from "./utilities/async";
 
 
 
 
 const Stack = createStackNavigator();
 
+
 const initialDataSetup = async () => {
+    await AsyncStorage.clear();
     try {
         const value = await fetchData();
         if (value === null) {
-            await storeData(data);  // Assuming `data` is your imported JSON data
+            // Assign an ID to the initial data
+            data.newboard.grids = data.newboard.grids.map(board => ({
+                ...board,
+                id: hashArray(board.value)
+            }));
+            await storeData(data);
+        }
+        else {
+            console.log("data already exists")
         }
     } catch(e) {
         console.error("Error reading data", e);
     }
 }
-
-// Inside your component's useEffect that runs once:
 
 
 const App = () => {
@@ -72,7 +84,7 @@ const App = () => {
                         },
                     }}
                 />
-                <Stack.Screen name="Game" component={GameScreen} />
+                <Stack.Screen name="GameScreen" component={GameScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

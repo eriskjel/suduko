@@ -26,21 +26,21 @@ const DifficultyScreen = ({ navigation, difficulty }) => {
             <Text style={styles.headerText}>{t('selectDifficulty')}</Text>
             <TouchableOpacity
                 style={[styles.buttonContainer, styles.easyButton]}
-                onPress={() => navigation.navigate('Game', { difficulty: 'easy' })}
+                onPress={() => navigation.navigate('GameScreen', { difficulty: 'easy' })}
             >
                 <Text style={styles.buttonText}>{t('startEasy')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 style={[styles.buttonContainer, styles.mediumButton]}
-                onPress={() => navigation.navigate('Game', { difficulty: 'medium' })}
+                onPress={() => navigation.navigate('GameScreen', { difficulty: 'medium' })}
             >
                 <Text style={styles.buttonText}>{t('startMedium')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 style={[styles.buttonContainer, styles.hardButton]}
-                onPress={() => navigation.navigate('Game', { difficulty: 'hard' })}
+                onPress={() => navigation.navigate('GameScreen', { difficulty: 'hard' })}
             >
                 <Text style={styles.buttonText}>{t('startHard')}</Text>
             </TouchableOpacity>

@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import Cell from './Cell';
 
-const Board = ({ board, style, onCellClick, selectedNumber, selectedCell }) => {
+const Board = ({ board, style, onCellClick, selectedNumber, selectedCell, initialBoard }) => {
     if (!board){
         return <Text>Loading...</Text>;
     }
@@ -14,13 +14,14 @@ const Board = ({ board, style, onCellClick, selectedNumber, selectedCell }) => {
                     {row.map((cell, colIndex) => (
                         <Cell
                             key={colIndex}
-                            value={cell.value}
+                            value={cell}
                             rowIndex={rowIndex}
                             colIndex={colIndex}
-                            onCellClick={(row, col) => onCellClick(row, col)}
-                            readOnly={cell.readOnly}
+                            onCellClick={() => onCellClick(rowIndex, colIndex)}
+                            readOnly={initialBoard[rowIndex][colIndex] > 0}
                             selectedNumber={selectedNumber}
                             selectedCell={selectedCell}  // Pass selectedCell down to Cell
+                            initialBoard={initialBoard}
                         />
                     ))}
                 </View>
@@ -28,6 +29,7 @@ const Board = ({ board, style, onCellClick, selectedNumber, selectedCell }) => {
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     board: {
