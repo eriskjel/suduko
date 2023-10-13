@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, Text} from 'react-native';
 import Cell from './Cell';
 
-const Board = ({ board, style, onCellClick, selectedNumber, selectedCell, initialBoard }) => {
+const Board = ({ board, style, onCellClick, selectedNumber, selectedCell, initialBoard, doubleTappedCells, setDoubleTappedCells  }) => {
     if (!board){
         return <Text>Loading...</Text>;
     }
@@ -22,6 +22,9 @@ const Board = ({ board, style, onCellClick, selectedNumber, selectedCell, initia
                             selectedNumber={selectedNumber}
                             selectedCell={selectedCell}  // Pass selectedCell down to Cell
                             initialBoard={initialBoard}
+                            isDoubleTapped={doubleTappedCells[rowIndex][colIndex]}
+                            setDoubleTappedCells={setDoubleTappedCells}
+                            doubleTappedCells={doubleTappedCells}
                         />
                     ))}
                 </View>

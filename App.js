@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
 import {hashArray} from "./utilities/hash";
 import {printAsyncStorage} from "./utilities/async";
+import UserManualScreen from "./screens/UserManualScreen";
 
 
 
@@ -85,6 +86,7 @@ const App = () => {
                     }}
                 />
                 <Stack.Screen name="GameScreen" component={GameScreen} />
+                <Stack.Screen name="UserManualScreen" component={UserManualScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Board from '../components/Board';
 import {useTranslation} from "react-i18next";
 import {fetchData, mergeData, storeData} from "../utilities/storage";
@@ -19,6 +19,8 @@ const GameScreen = ({ route, navigation }) => {
     const [selectedNumber, setSelectedNumber] = useState(null);
     const [currentBoardID, setCurrentBoardID] = useState(null);
     const [initialBoard, setInitialBoard] = useState(generateInitialBoard());
+    const [doubleTappedCells, setDoubleTappedCells] = useState(Array.from({ length: 9 }, () => Array(9).fill(false)));
+
 
 
 
@@ -40,20 +42,26 @@ const GameScreen = ({ route, navigation }) => {
                     const apiData = await response.json();
                     setIsFromAPI(true);
 
+                    // Generate the ID for the fetched board
+                    const fetchedBoardID = hashArray(apiData.newboard.grids[0].value);
+                    setCurrentBoardID(fetchedBoardID)
+
                     // Merge with existing data and update storage
                     apiData.newboard.grids[0].difficulty = apiData.newboard.grids[0].difficulty.toLowerCase();
-                    navigation.setOptions({
-                        title: `Difficulty: ${apiData.newboard.grids[0].difficulty}`,
-                    });
+
 
                     const existingDataToMerge = await fetchData();
                     const merged = mergeData(existingDataToMerge, apiData);
                     await storeData(merged);
 
+                    const localizedDifficulty = t(await getDifficultyByID(fetchedBoardID));
+                    navigation.setOptions({
+                        title: `Difficulty: ${localizedDifficulty}`,
+                    });
 
-                    // Generate the ID for the fetched board
-                    const fetchedBoardID = hashArray(apiData.newboard.grids[0].value);
-                    setCurrentBoardID(fetchedBoardID)
+
+
+
 
                     const storedData = await fetchData();
                     const fetchedBoard = getBoardByID(storedData, fetchedBoardID);
@@ -140,24 +148,58 @@ const GameScreen = ({ route, navigation }) => {
         };
     };
 
+    const getDifficultyByID = async (boardID) => {
+        try {
+            // Fetch all the data
+            const storedData = await fetchData();
+
+            // Find the board with the matching ID
+            const foundBoard = storedData.newboard.grids.find(grid => grid.id === boardID);
+
+            // If found, return the difficulty
+            if (foundBoard) {
+                return foundBoard.difficulty;
+            } else {
+                console.log("Board not found");
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching data from storage:', error);
+            return null;
+        }
+    };
 
 
 
-
-
-    const resetBoard = () => {
-        const newBoard = board.map((row) =>
-            row.map((cell) => 0)  // Resetting the value to 0
+    const resetBoard2 = () => {
+        const newBoard = board.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+                return initialBoard[rowIndex][colIndex] !== 0 ? initialBoard[rowIndex][colIndex] : 0;
+            })
         );
         setBoard(newBoard);
         setSelectedCell({ row: null, col: null }); // Clear the selected cell
         setSelectedNumber(null); // Clear the selected number
     };
 
+    const resetBoard = () => {
+        const newBoard = board.map((row, rowIndex) =>
+            row.map((cell, colIndex) => {
+                return initialBoard[rowIndex][colIndex] !== 0 ? initialBoard[rowIndex][colIndex] : 0;
+            })
+        );
+        setBoard(newBoard);
+        setDoubleTappedCells(Array.from({ length: 9 }, () => Array(9).fill(false))); // Reset the double-tapped cells
+    };
+
+
+
 
 
 
     const handleCellClick = (row, col, newNumber = null) => {
+        console.log(`Clicked on cell (${row}, ${col})`);
+        console.log(`Selected number: ${newNumber}`);
         if (newNumber !== null) {
             const newBoard = [...board];
             newBoard[row][col].value = newNumber;
@@ -178,9 +220,7 @@ const GameScreen = ({ route, navigation }) => {
         });
     };*/
 
-    const transformBoard = (jsonBoard) => {
-        return jsonBoard.map(row => row.map(cell => cell.value));
-    };
+
 
 
 
@@ -189,7 +229,7 @@ const GameScreen = ({ route, navigation }) => {
     const handleNumberClick = (number) => {
         if (selectedCell.row !== null && selectedCell.col !== null) {
             const newBoard = [...board];
-            if (newBoard[selectedCell.row][selectedCell.col] === 0) { // Check if cell is not readOnly
+            if (initialBoard[selectedCell.row][selectedCell.col] === 0) { // Check if cell is not readOnly
                 newBoard[selectedCell.row][selectedCell.col] = number;
                 setBoard(newBoard);
 
@@ -249,32 +289,60 @@ const GameScreen = ({ route, navigation }) => {
         const isSolved = compareBoards(board, correspondingBoard.solution);
 
         if (isSolved) {
-            alert('You solved the puzzle!');
+            alert(t('solved'));
         } else {
-            alert('Not quite right. Try again.');
+            alert(t('notSolved'));
         }
     };
-
-
 
     const compareBoards = (board1, board2) => {
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                if (board1[i][j].value !== board2[i][j]) {
+                if (board1[i][j] !== board2[i][j]) {
                     return false;
                 }
             }
         }
         return true;
-    }
+    };
 
 
+    const handleAutoSolve = async () => {
+        try {
+            // Fetch the board with the stored ID from AsyncStorage
+            const storedData = await fetchData();
+
+            // Find the corresponding board by ID
+            const correspondingBoard = getBoardByID(storedData, currentBoardID);
+
+            if (!correspondingBoard) {
+                console.error("Could not find the corresponding board.");
+                // Handle this case gracefully, e.g., display an error message to the user.
+                return;
+            }
+
+            if (!correspondingBoard.solution) {
+                console.error("Solution not found for the corresponding board.");
+                // Handle this case gracefully, e.g., display an error message to the user.
+                return;
+            }
+
+            // Update the board state to the solved board.
+            setBoard(correspondingBoard.solution);
+
+        } catch (error) {
+            console.error("An error occurred while auto-solving the board:", error);
+            // Handle this case gracefully, e.g., display an error message to the user.
+        }
+    };
 
 
 
     return (
         loading ? (
-            <Text>Loading...</Text>
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#5294e7" />
+            </View>
         ) : (
             <View style={styles.container}>
                 <View style={styles.boardContainer}>
@@ -284,6 +352,8 @@ const GameScreen = ({ route, navigation }) => {
                         selectedNumber={selectedNumber}
                         selectedCell={selectedCell}
                         initialBoard={initialBoard}
+                        doubleTappedCells={doubleTappedCells}
+                        setDoubleTappedCells={setDoubleTappedCells}
                     />
                 </View>
                 <View style={styles.inputBox}>
@@ -294,8 +364,15 @@ const GameScreen = ({ route, navigation }) => {
                     ))}
                 </View>
                 <View style={styles.buttonContainer}>
-                    <Button title={t('reset')} onPress={resetBoard} />
-                    <Button title={t('solve')} onPress={handleSolve} />
+                    <TouchableOpacity style={styles.customButton} onPress={resetBoard}>
+                        <Text style={styles.buttonText}>Reset</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.customButton} onPress={handleSolve}>
+                        <Text style={styles.buttonText}>Solve</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.customButton} onPress={handleAutoSolve}>
+                        <Text style={styles.buttonText}>Auto Solve</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         )
@@ -330,7 +407,7 @@ const styles = StyleSheet.create({
         marginTop: -5,  // Separate from the board
     },
     numberButton: {
-        width: '30%',  // Adjust this value if needed
+        width: '20%',  // Adjust this value if needed
         padding: 15,
         justifyContent: 'center',
         alignItems: 'center',
@@ -344,10 +421,29 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '80%',
-        marginBottom: 40  // Space at the bottom
-    }
+        justifyContent: 'center',
+        width: '100%',
+        marginBottom: 60,
+    },
+    customButton: {
+        width: '25%', // You can adjust this percentage as needed
+        backgroundColor: '#5294e7',
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '1%', // Optional: Add some margin between the buttons
+        borderRadius: 5,
+        height: 50,
+    },
+    buttonText: {
+        color: 'white',
+        textAlign: 'center'
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });
 
 export default GameScreen;

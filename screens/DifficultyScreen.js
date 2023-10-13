@@ -15,7 +15,7 @@ const DifficultyScreen = ({ navigation, difficulty }) => {
             },
             headerTitleStyle: {
                 fontWeight: 'bold',
-                fontSize: 24,
+                fontSize: 18,
                 color: 'white'
             },
             headerTintColor: 'white'
@@ -23,7 +23,6 @@ const DifficultyScreen = ({ navigation, difficulty }) => {
     }, [difficulty, navigation]);
     return (
         <View style={styles.home}>
-            <Text style={styles.headerText}>{t('selectDifficulty')}</Text>
             <TouchableOpacity
                 style={[styles.buttonContainer, styles.easyButton]}
                 onPress={() => navigation.navigate('GameScreen', { difficulty: 'easy' })}

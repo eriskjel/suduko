@@ -1,19 +1,34 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const Cell = ({ value, rowIndex, colIndex, onCellClick, readOnly, selectedNumber, selectedCell }) => {
+const Cell = ({ value, rowIndex, colIndex, onCellClick, readOnly, selectedNumber, selectedCell, doubleTappedCells, setDoubleTappedCells }) => {
     const isSelected = rowIndex === selectedCell.row && colIndex === selectedCell.col;
+    const isDoubleTapped = doubleTappedCells[rowIndex][colIndex]; // Derive the double-tapped status
+
+    const [lastTap, setLastTap] = useState(null);
     const cellStyle = [
         styles.cell,
         { backgroundColor: readOnly ? '#b6b6b6' : 'white' }, // Set background color based on readOnly
-        isSelected ? { borderWidth: 3, borderColor: '#5294e7' } : {}
+        isSelected ? { borderWidth: 3, borderColor: '#5294e7' } : {},
+        isDoubleTapped ? { backgroundColor: '#b74a20' } : {}
     ];
 
 
+
+
     const handlePress = () => {
-        if (!readOnly) {
-            onCellClick(rowIndex, colIndex, selectedNumber);
+        const now = Date.now();
+        const DOUBLE_PRESS_DELAY = 300;
+        if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
+            const newDoubleTappedCells = [...doubleTappedCells];
+            newDoubleTappedCells[rowIndex][colIndex] = !newDoubleTappedCells[rowIndex][colIndex];
+            setDoubleTappedCells(newDoubleTappedCells);
+        } else {
+            if (!readOnly) {
+                onCellClick(rowIndex, colIndex, selectedNumber);
+            }
         }
+        setLastTap(now);
     };
 
 
