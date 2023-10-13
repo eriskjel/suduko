@@ -23,7 +23,7 @@ const MainHomeScreen = ({ navigation }) => {
                 style={[styles.buttonContainer, { backgroundColor: "#28a745"}]}
                 onPress={() => navigation.navigate('DifficultyScreen')}
             >
-                <Text style={styles.buttonText}>{t('selectDifficulty')}</Text>
+                <Text style={styles.buttonText}>{t('playBoards')}</Text>
             </TouchableOpacity>
 
 
@@ -38,7 +38,7 @@ const MainHomeScreen = ({ navigation }) => {
             </TouchableOpacity>
 
 
-            <TouchableOpacity style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={() => navigation.navigate('UserManualScreen')} >
                 <Text style={styles.buttonText}>{t('userManual')}</Text>
             </TouchableOpacity>
         </View>
