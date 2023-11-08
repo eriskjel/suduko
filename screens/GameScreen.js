@@ -260,6 +260,18 @@ const GameScreen = ({ route, navigation }) => {
         setSelectedNumber(number);
     };
 
+    const clearCell = () => {
+        // Check if there is a selected cell and if it is editable (not part of the initial board)
+        if (selectedCell.row !== null && selectedCell.col !== null && initialBoard[selectedCell.row][selectedCell.col] === 0) {
+            const newBoard = [...board];
+            newBoard[selectedCell.row][selectedCell.col] = 0; // Clear the cell value
+            setBoard(newBoard);
+        }
+    };
+
+
+
+
 
 
     const handleSolve = async () => {
@@ -373,6 +385,9 @@ const GameScreen = ({ route, navigation }) => {
                     <TouchableOpacity style={styles.customButton} onPress={handleAutoSolve}>
                         <Text style={styles.buttonText}>Auto Solve</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.customButton} onPress={clearCell}>
+                        <Text style={styles.buttonText}>Clear cell</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         )
@@ -422,8 +437,9 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        width: '100%',
+        width: "90%",
         marginBottom: 60,
+        marginHorizontal: 10,
     },
     customButton: {
         width: '25%', // You can adjust this percentage as needed
